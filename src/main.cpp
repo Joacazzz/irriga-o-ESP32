@@ -7,8 +7,7 @@
 const char* ssid = "SUA_REDE";
 const char* password = "SUA_SENHA";
 
-const int pinoRele = 26; // Seu módulo relé
-const int pinoSensor = 34; // Sensor de umidade
+const int pinoRele = 2; // Seu módulo relé
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -71,19 +70,4 @@ void setup() {
 
 void loop() {
   ws.cleanupClients();
-  
-  static unsigned long lastTime = 0;
-  if (millis() - lastTime > 5000) {
-    int valorAnalogico = analogRead(pinoSensor);
-    // Converte o valor analógico para porcentagem (calibre esses números de acordo com seu solo)
-    int umidade = map(valorAnalogico, 4095, 0, 0, 100); 
-    
-    JsonDocument doc;
-    doc["umidade"] = umidade;
-    String json;
-    serializeJson(doc, json);
-    notifyClients(json);
-    
-    lastTime = millis();
-  }
 }
