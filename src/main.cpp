@@ -4,10 +4,11 @@
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 
-const char* ssid = "SUA_REDE";
-const char* password = "SUA_SENHA";
+const char* ssid = "Ftc-SL1";
+const char* password = "fatecatb";
 
 const int pinoRele = 2; // Seu módulo relé
+bool bombaLigada = false;
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -17,24 +18,31 @@ void notifyClients(String msg) {
 }
 
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
-  if (type == WS_EVT_DATA) {
+  if (type == WS_EVT_CONNECT) {
+    JsonDocument doc;
+    doc["bomba"] = bombaLigada;
+    String resposta;
+    serializeJson(doc, resposta);
+    client->text(resposta);
+  } else if (type == WS_EVT_DATA) {
     AwsFrameInfo *info = (AwsFrameInfo*)arg;
     if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
-      data[len] = 0;
-      String message = (char*)data;
-      
       JsonDocument doc;
-      deserializeJson(doc, message);
+      DeserializationError erro = deserializeJson(doc, data, len);
+      if (erro) {
+        return;
+      }
       
       // Se o front-end mandar ligar/desligar a bomba
-      if (doc["acao"] == "toggleBomba") {
+      if (doc["acao"] == "toggleBomba" && doc["estado"].is<bool>()) {
         bool estado = doc["estado"];
-        digitalWrite(pinoRele, estado ? HIGH : LOW); // Ajuste HIGH/LOW conforme o seu módulo relé
+        bombaLigada = estado;
+        digitalWrite(pinoRele, bombaLigada ? HIGH : LOW); // Ajuste HIGH/LOW conforme o seu módulo relé
         
         // Avisa todos os clientes que o estado mudou
         String resposta;
         doc.clear();
-        doc["bomba"] = estado;
+        doc["bomba"] = bombaLigada;
         serializeJson(doc, resposta);
         notifyClients(resposta);
       }
