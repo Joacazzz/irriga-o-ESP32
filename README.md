@@ -4,8 +4,9 @@ Um sistema de irrigação com esteroides. Em vez de simplesmente usar um timer a
 
 ## 🚀 Funcionalidades
 
-- **Dashboard em Tempo Real:** Monitoramento da umidade do solo atualizado instantaneamente sem recarregar a página.
-- **Controle Híbrido:** Ligue a bomba d'água manualmente pelo navegador ou defina um limite percentual para o sistema trabalhar sozinho.
+- **Dashboard em Tempo Real:** Monitoramento do estado seco/úmido do solo e da bomba, atualizado pelo WebSocket.
+- **Irrigação Automática:** O sensor digital no D4 (GPIO4) liga a bomba quando indica solo seco e a desliga quando indica umidade. O limiar é ajustado no potenciômetro do módulo.
+- **Controle Manual:** Alterne o painel para o modo manual e controle a bomba pelo navegador.
 - **Armazenamento de Histórico (Sem fritar o chip):** Log de eventos salvo de forma leve (CSV/JSON), poupando os ciclos de escrita da memória flash e abandonando ideias megalomaníacas de rodar bancos de dados relacionais no microcontrolador.
 - **Single Page Application Embarcada:** O build de produção do React vive compactado dentro do ESP32 usando LittleFS. Zero dependência de nuvens de terceiros.
 
